@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./index.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <style>
+        table {
+            background-color: #ffffff51;
+        }
+        
+        #outcome-bar,
+        #income-bar {
+            position: absolute;
+            bottom: 0px;
+        }
+        
+        #outcome-bar {
+            background-color: rgba(255, 51, 0, 0.733);
+            width: 90%;
+            margin: 5%;
+            height: 20%;
+        }
+        
+        #income-bar {
+            background-color: rgba(0, 255, 21, 0.733);
+            width: 90%;
+            margin: 5%;
+            height: 80%;
+        }
+        
+        #table-income,
+        #table-expenses {
+            background-color: rgba(128, 128, 128, 0.555);
+            margin-top: 20px;
+        }
+        
+        #overall-table {
+            background-color: rgba(0, 0, 0, 0.39);
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        caption {
+            letter-spacing: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        
+        .caption>p {
+            margin-bottom: -25px;
+        }
+        
+        td {
+            text-align: end;
+        }
+        
+        tr:nth-child(odd) {
+            color: white;
+        }
+        
+        .purple-bg {
+            background-color: rgba(39, 8, 18, 0.527);
+        }
+        
+        #overall-table>tr>th {
+            color: brown;
+        }
+    </style>
+    <title>Result table</title>
+    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-firestore.js"></script>
+    <script src="../../js/app.js"></script>
+    <script src="../../js/index.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        function exportTableToExcel(tableID, filename = '') {
+            console.log("hai")
+            var downloadLink;
+            var dataType = 'application/vnd.ms-excel';
+            var tableSelect = document.getElementById(tableID);
+            var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+            // Specify file name
+            filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+            // Create download link element
+            downloadLink = document.createElement("a");
+            document.body.appendChild(downloadLink);
+
+            if (navigator.msSaveOrOpenBlob) {
+                var blob = new Blob(['\ufeff', tableHTML], {
+                    type: dataType
+                });
+                navigator.msSaveOrOpenBlob(blob, filename);
+            } else {
+                // Create a link to the file
+                downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+                // Setting the file name
+                downloadLink.download = filename;
+
+                //triggering the function
+                downloadLink.click();
+            }
+        }
+
+        const render = async() => {
+            // table outcome
+            var table = document.getElementById("table-expenses");
+            var totalVar = document.getElementById("total-expenses")
+            var starting = document.getElementById("starting-balance")
+            var planned = document.getElementById("planned-savings")
+            var totalPlanned = document.getElementById("total-planned-savings")
+
+            const appRef = await db.collection('MobileApp').doc("Budget")
+            appRef.get().then((doc) => {
+                var data = doc.data()
+                starting.innerHTML = "" + data.startingBalance
+                planned.innerHTML = "" + data.plannedSavings
+                totalPlanned.innerHTML = planned.innerHTML
+
+            })
+
+            var total = 0
+            const outcomeSnapshot = await db.collection('Outcome').get()
+            outcomeSnapshot.docs.map(doc => {
+                data = doc.data()
+                var row = table.insertRow(-1);
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+
+                cell1.innerHTML = doc.id;
+                cell2.innerHTML = data.dateStamp;
+                cell3.innerHTML = data.detail;
+                cell4.innerHTML = data.amount;
+                total = parseInt(total) + parseInt(data.amount);
+                totalVar.innerHTML = "" + total
+            });
+
+            // table income
+            var table = document.getElementById("table-income");
+            var totalVar = document.getElementById("total-income")
+            total = 0
+            const incomeSnapshot = await db.collection('Income').get()
+            incomeSnapshot.docs.map(doc => {
+                data = doc.data()
+                var row = table.insertRow(-1);
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+
+                cell1.innerHTML = doc.id;
+                cell2.innerHTML = data.dateStamp;
+                cell3.innerHTML = data.detail;
+                cell4.innerHTML = data.amount;
+                total = parseInt(total) + parseInt(data.amount);
+                totalVar.innerHTML = "" + total
+            });
+
+            setTimeout(() => {
+                var income = document.getElementById("total-income").innerHTML;
+                var outcome = document.getElementById("total-expenses").innerHTML;
+                var balance = document.getElementById("balance-amount")
+                balance.innerHTML = parseInt(income) - parseInt(outcome)
+                document.getElementById("total-actual-savings").innerHTML = balance.innerHTML
+
+                var incomeBar = document.getElementById("income-bar");
+                var outcomeBar = document.getElementById("outcome-bar");
+
+                // Selling price S.P income
+                // Cost price    C.P outcome
+                // Profit = S.P - C.P
+                var profit = parseInt(income) - parseInt(outcome)
+                var loss = parseInt(outcome) - parseInt(income)
+                var profitPercent = Math.abs((profit / parseInt(outcome)) * 100)
+                if (profitPercent >= 100) {
+                    profitPercent = 100
+                }
+                incomeBar.style.height = profitPercent + "%"
+                incomeBar.innerHTML = profitPercent + "%"
+                document.getElementById("savings-percent").innerHTML = (profit * 100) / parseInt(outcome) + "%"
+
+                var lossPercent = Math.abs((loss / parseInt(outcome)) * 100)
+                if (lossPercent >= 100) {
+                    lossPercent = 100
+                }
+                outcomeBar.style.height = lossPercent + "%"
+                outcomeBar.innerHTML = lossPercent + "%"
+
+            }, 1500);
+        }
+
+        const editfn1 = async() => {
+            var ref = db.collection("MobileApp");
+            var input = window.prompt("starting Balance")
+            ref.doc("Budget").set({
+                plannedSavings: document.getElementById("starting-balance").innerHTML,
+                startingBalance: input
+            }).then(() => {
+                render()
+            })
+        }
+        const editfn2 = async() => {
+            var ref = db.collection("MobileApp");
+            var input = window.prompt("planned Savings")
+            ref.doc("Budget").set({
+                plannedSavings: input,
+                startingBalance: document.getElementById("planned-savings").innerHTML
+            }).then(() => {
+                render()
+            })
+        }
+    </script>
+</head>
+
+<body onload="render()">
+    <div class="app">
+        <div class="head">
+            MONTHLY BUDGET
+        </div>
+        <div class="div-1">
+            <div class="sub-div-1">
+                <div class="topic">Starting balance</div>
+                <div id="starting-balance">2000</div>
+                <div class="edit-btn" onclick="editfn1()">edit</div>
+            </div>
+            <div class="sub-div-2">
+                <div class="topic">planned savings</div>
+                <div id="planned-savings">2000</div>
+                <div class="edit-btn" onclick="editfn2()">edit</div>
+            </div>
+        </div>
+        <div class="div-2">
+            <div class="left">
+                <div class="topic">
+                    Monthly budget bar chart
+                </div>
+                <div class="bar-chart">
+                    <div>
+                        <div class="bar">
+                            <div id="income-bar"></div>
+                        </div>
+                        <div class="caption">
+                            <p>PROFIT</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="bar">
+                            <div id="outcome-bar"></div>
+                        </div>
+                        <div class="caption">
+                            <p>LOSS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="right">
+                <div class="small" id="savings-percent">
+                    +50%
+                </div>
+                <div class="big">Increasing total savings</div>
+                <div class="small">
+                    500
+                </div>
+                <div class="big">
+                    saved this month
+                </div>
+            </div>
+        </div>
+        <div class="div-3">
+
+            <table id="table-income">
+                <caption>Income table</caption>
+                <tr class="purple-bg">
+                    <th scope="col">id</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Items</th>
+                    <th scope="col">Amount</th>
+                </tr>
+            </table>
+            <table id="table-expenses">
+                <caption>Expenses table</caption>
+                <tr class="purple-bg">
+                    <th scope="col">id</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Items</th>
+                    <th scope="col">Amount</th>
+                </tr>
+            </table>
+            <table id="overall-table">
+                <caption>Over all result table</caption>
+                <tr>
+                    <th scope="row">total income</th>
+                    <td id="total-income">0</td>
+                </tr>
+                <tr>
+                    <th scope="row">total expenses</th>
+                    <td id="total-expenses">0</td>
+                </tr>
+                <tr>
+                    <th scope="row">balance amuont</th>
+                    <td id="balance-amount">0</td>
+                </tr>
+                <tr>
+                    <th scope="row">planned savings</th>
+                    <td id="total-planned-savings">0</td>
+                </tr>
+                <tr>
+                    <th scope="row">actual savings</th>
+                    <td id="total-actual-savings">0</td>
+                </tr>
+
+            </table>
+        </div>
+        <div class="download-section">
+            <div class="flex-div">
+                <div>income table</div>
+                <div><button class="btn btn-primary" onclick="exportTableToExcel('table-income','income')">download</button></div>
+            </div>
+            <div class="flex-div">
+                <div>expenses table</div>
+                <div><button class="btn btn-primary" onclick="exportTableToExcel('table-expenses','expenses')">download</button></div>
+            </div>
+            <div class="flex-div">
+                <div>overall table</div>
+                <div><button class="btn btn-primary" onclick="exportTableToExcel('overall-table','overall')">download</button></div>
+            </div>
+
+        </div>
+        <div class="empty">
+
+        </div>
+    </div>
+    <script src="../../cordova.js"></script>
+</body>
+
+</html>

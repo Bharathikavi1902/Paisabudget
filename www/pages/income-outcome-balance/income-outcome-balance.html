@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./index.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-firestore.js"></script>
+    <script src="../../js/app.js"></script>
+    <title>Document</title>
+    <script>
+        const renderPage = async() => {
+
+            var income = document.getElementById("income")
+            var outcome = document.getElementById("outcome")
+            var balance = document.getElementById("balance")
+            var incomeTotal = 0
+            var outcomeTotal = 0
+
+            const incomeRef = await db.collection('Income').get()
+            incomeRef.docs.map(doc => {
+                var data = doc.data()
+                incomeTotal = incomeTotal + parseInt(data.amount)
+            });
+
+            const outcomeRef = await db.collection('Outcome').get()
+            outcomeRef.docs.map(doc => {
+                var data = doc.data()
+                outcomeTotal = outcomeTotal + parseInt(data.amount)
+            });
+
+            setTimeout(() => {
+                income.innerHTML = "" + incomeTotal
+                outcome.innerHTML = "" + outcomeTotal
+                balance.innerHTML = "" + (incomeTotal - outcomeTotal)
+            }, 2000);
+
+        }
+    </script>
+</head>
+
+<body onload="renderPage()">
+    <div class="app">
+        <div class="detail-tag">
+            <div class="detail-heading">
+                items
+            </div>
+            <div class="data">
+                <div class="left">
+                    INCOME
+                </div>
+                <div class="right" id="income">
+                    0
+                </div>
+            </div>
+            <div class="data">
+                <div class="left">
+                    OUTCOME
+                </div>
+                <div class="right" id="outcome">
+                    0
+                </div>
+            </div>
+            <div class="data">
+                <div class="left">
+                    BALANCE
+                </div>
+                <div class="right" id="balance">
+                    0
+                </div>
+            </div>
+        </div>
+        <a href="../income-section/income-section.html">
+            <div class="income">
+                <p>INCOME</p>
+            </div>
+        </a>
+        <a href="../outcome-section/outcome-section.html">
+            <div class="outcome">
+                <p>OUTCOME</p>
+            </div>
+        </a>
+    </div>
+</body>
+
+</html>

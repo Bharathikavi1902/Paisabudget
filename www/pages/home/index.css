@@ -1,0 +1,54 @@
+:root {
+    --glass: #ffffff51;
+    --darkglass: #00000083;
+}
+
+.app {
+    min-height: 100vh;
+}
+
+
+/** the card css **/
+
+.card {
+    height: 120px;
+    background-color: var(--glass);
+    box-shadow: 2px 2px 5px black;
+    margin: 20px;
+    display: flex;
+    flex-direction: row;
+}
+
+a {
+    color: black;
+    text-decoration: none;
+}
+
+.title-bar {
+    margin-left: 0px;
+    background-color: var(--darkglass);
+    color: aquamarine;
+    padding: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.card>.img {
+    background-color: var(--glass);
+    margin: 12px;
+    width: 30%;
+    border-radius: 2px;
+}
+
+.card>.card-info {
+    width: 50%;
+    margin: 18px;
+    margin-right: 0px;
+    text-transform: uppercase;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    display: inline-block;
+    letter-spacing: 2px;
+    font-weight: 800;
+    text-align: end;
+}

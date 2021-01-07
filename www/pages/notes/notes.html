@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./index.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-firestore.js"></script>
+    <script src="../../js/app.js"></script>
+    <title>Document</title>
+    <style>
+        .toggle-show {
+            display: none;
+        }
+    </style>
+    <script>
+        var toggle = false;
+        var itemCount = 1;
+
+        function toggleShow(arg) {
+            var ele = document.getElementById("toggle-show-" + arg)
+            var val = ele.style.display;
+            ele.style.display = val == "block" ? "none" : "block";
+            document.getElementById("btn-more-" + arg).style.backgroundColor = val != "block" ? "rgba(220, 20, 20, 0.392)" : "rgba(0, 255, 0, 0.659)";
+            toggle = !toggle;
+        }
+
+        function add(arg) {
+            console.log("Hai")
+            var obj = document.getElementById("items");
+            var ele = document.getElementById("sample")
+            console.log(ele)
+            obj.append(ele)
+        }
+
+        function show(arg) {
+            var time = document.getElementById("time-" + arg).innerHTML;
+            var content = document.getElementById("content-" + arg).innerHTML;
+            window.alert(" TIME : " + time + '\n' + "CONTENT : " + content)
+            toggleShow(arg);
+        }
+
+        function edit(arg) {
+            var time = document.getElementById("time-" + arg);
+            var content = document.getElementById("content-" + arg);
+            var getTime = window.prompt("TIME:")
+            var getContent = window.prompt("CONTENT:")
+            time.innerHTML = getTime;
+            content.innerHTML = getContent;
+            setNote("" + arg, getTime, getContent)
+            toggleShow(arg);
+        }
+
+        function del(arg) {
+            var time = document.getElementById("time-" + arg);
+            var content = document.getElementById("content-" + arg);
+            time.innerHTML = "";
+            content.innerHTML = "";
+            setNote("" + arg, "", "")
+            toggleShow(arg);
+        }
+    </script>
+</head>
+
+<body onload="loadNotes()">
+    <div class="app">
+        <div class="app-heading">
+            NOTES
+        </div>
+
+        <div id="items">
+            <div class="tab">
+                <div class="tab-body">
+                    <div>1</div>
+                    <div class="time" id="time-1">
+
+                    </div>
+                    <div class="content" id="content-1">
+
+                    </div>
+                    <div class="btn-more" onclick="toggleShow('1')" id="btn-more-1">
+                    </div>
+                    <div class="toggle-show pop-up" id="toggle-show-1">
+                        <div onclick="show('1')">SHOW</div>
+                        <div onclick="edit('1')">EDIT</div>
+                        <div onclick="del('1')">DEL</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab">
+                <div class="tab-body">
+                    <div>2</div>
+                    <div class="time" id="time-2">
+
+                    </div>
+                    <div class="content" id="content-2">
+
+                    </div>
+                    <div class="btn-more" onclick="toggleShow('2')" id="btn-more-2">
+                    </div>
+                    <div class="toggle-show pop-up" id="toggle-show-2">
+                        <div onclick="show('2')">SHOW</div>
+                        <div onclick="edit('2')">EDIT</div>
+                        <div onclick="del('2')">DEL</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab">
+                <div class="tab-body">
+                    <div>3</div>
+                    <div class="time" id="time-3">
+
+                    </div>
+                    <div class="content" id="content-3">
+
+                    </div>
+                    <div class="btn-more" onclick="toggleShow('3')" id="btn-more-3">
+
+                    </div>
+                    <div class="toggle-show pop-up" id="toggle-show-3">
+                        <div onclick="show('3')">SHOW</div>
+                        <div onclick="edit('3')">EDIT</div>
+                        <div onclick="del('3')">DEL</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab">
+                <div class="tab-body">
+                    <div>4</div>
+                    <div class="time" id="time-4">
+
+                    </div>
+                    <div class="content" id="content-4">
+
+                    </div>
+                    <div class="btn-more" onclick="toggleShow('4')" id="btn-more-4">
+
+                    </div>
+                    <div class="toggle-show pop-up" id="toggle-show-4">
+                        <div onclick="show('4')">SHOW</div>
+                        <div onclick="edit('4')">EDIT</div>
+                        <div onclick="del('4')">DEL</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab">
+                <div class="tab-body">
+                    <div>5</div>
+                    <div class="time" id="time-5">
+
+                    </div>
+                    <div class="content" id="content-5">
+
+                    </div>
+                    <div class="btn-more" onclick="toggleShow('5')" id="btn-more-5">
+
+                    </div>
+                    <div class="toggle-show pop-up" id="toggle-show-5">
+                        <div onclick="show('5')">SHOW</div>
+                        <div onclick="edit('5')">EDIT</div>
+                        <div onclick="del('5')">DEL</div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab">
+                <div class="tab-body">
+                    <div>6</div>
+                    <div class="time" id="time-6">
+
+                    </div>
+                    <div class="content" id="content-6">
+
+                    </div>
+                    <div class="btn-more" onclick="toggleShow('6')" id="btn-more-6">
+
+                    </div>
+                    <div class="toggle-show pop-up" id="toggle-show-6">
+                        <div onclick="show('6')">SHOW</div>
+                        <div onclick="edit('6')">EDIT</div>
+                        <div onclick="del('6')">DEL</div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab">
+                <div class="tab-body">
+                    <div>7</div>
+                    <div class="time" id="time-7">
+
+                    </div>
+                    <div class="content" id="content-7">
+
+                    </div>
+                    <div class="btn-more" onclick="toggleShow('7')" id="btn-more-7">
+
+                    </div>
+                    <div class="toggle-show pop-up" id="toggle-show-7">
+                        <div onclick="show('7')">SHOW</div>
+                        <div onclick="edit('7')">EDIT</div>
+                        <div onclick="del('7')">DEL</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab">
+                <div class="tab-body">
+                    <div>8</div>
+                    <div class="time" id="time-8">
+
+                    </div>
+                    <div class="content" id="content-8">
+
+                    </div>
+                    <div class="btn-more" onclick="toggleShow('8')" id="btn-more-8">
+
+                    </div>
+                    <div class="toggle-show pop-up" id="toggle-show-8">
+                        <div onclick="show('8')">SHOW</div>
+                        <div onclick="edit('8')">EDIT</div>
+                        <div onclick="del('8')">DEL</div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</body>
+
+</html>
